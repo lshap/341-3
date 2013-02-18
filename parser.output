@@ -1,0 +1,1513 @@
+   0  $accept : %entry% $end
+
+   1  toplevel : prog EOF
+
+   2  prog : block RETURN exp SEMI
+
+   3  block : vdecls stmts
+
+   4  vdecls : vdecl SEMI vdecls
+   5         |
+
+   6  vdecl : typ IDENT EQ exp
+
+   7  typ : TINT
+
+   8  vdecllist :
+   9            | vdeclplus
+
+  10  vdeclplus : vdecl
+  11            | vdecl COMMA vdeclplus
+
+  12  lhs : IDENT
+
+  13  stmts : stmt stmts
+  14        |
+
+  15  stmtOPT :
+  16          | stmt
+
+  17  expOPT :
+  18         | exp
+
+  19  exp : E4
+
+  20  E4 : E4 BAR E5
+  21     | E5
+
+  22  E5 : E5 AMPER E6
+  23     | E6
+
+  24  E6 : E6 EQEQ E7
+  25     | E6 BANGEQ E7
+  26     | E7
+
+  27  E7 : E7 LT E8
+  28     | E7 LTEQ E8
+  29     | E7 GT E8
+  30     | E7 GTEQ E8
+  31     | E8
+
+  32  E8 : E8 LTLT E9
+  33     | E8 GTGTGT E9
+  34     | E8 GTGT E9
+  35     | E9
+
+  36  E9 : E9 PLUS E10
+  37     | E9 DASH E10
+  38     | E10
+
+  39  E10 : E10 STAR E11
+  40      | E11
+
+  41  E11 : DASH E11
+  42      | BANG E11
+  43      | TILDE E11
+  44      | E12
+
+  45  E12 : INT
+  46      | LPAREN exp RPAREN
+  47      | IDENT
+
+  48  stmt : unmatchedif
+  49       | matchedif
+
+  50  unmatchedif : IF LPAREN exp RPAREN stmt
+  51              | IF LPAREN exp RPAREN matchedif ELSE unmatchedif
+
+  52  matchedif : IF LPAREN exp RPAREN matchedif ELSE matchedif
+  53            | purestmt
+
+  54  purestmt : lhs EQ exp SEMI
+  55           | WHILE LPAREN exp RPAREN stmt
+  56           | FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN stmt
+  57           | LBRACE block RBRACE
+
+  58  %entry% : '\001' toplevel
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . toplevel  (58)
+	vdecls : .  (5)
+
+	TINT  shift 3
+	IDENT  reduce 5
+	LBRACE  reduce 5
+	IF  reduce 5
+	WHILE  reduce 5
+	FOR  reduce 5
+	RETURN  reduce 5
+
+	toplevel  goto 4
+	block  goto 5
+	typ  goto 6
+	prog  goto 7
+	vdecls  goto 8
+	vdecl  goto 9
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	typ : TINT .  (7)
+
+	.  reduce 7
+
+
+state 4
+	%entry% : '\001' toplevel .  (58)
+
+	.  reduce 58
+
+
+state 5
+	prog : block . RETURN exp SEMI  (2)
+
+	RETURN  shift 10
+	.  error
+
+
+state 6
+	vdecl : typ . IDENT EQ exp  (6)
+
+	IDENT  shift 11
+	.  error
+
+
+state 7
+	toplevel : prog . EOF  (1)
+
+	EOF  shift 12
+	.  error
+
+
+state 8
+	block : vdecls . stmts  (3)
+	stmts : .  (14)
+
+	IDENT  shift 13
+	LBRACE  shift 14
+	IF  shift 15
+	WHILE  shift 16
+	FOR  shift 17
+	RBRACE  reduce 14
+	RETURN  reduce 14
+
+	stmt  goto 18
+	stmts  goto 19
+	lhs  goto 20
+	unmatchedif  goto 21
+	matchedif  goto 22
+	purestmt  goto 23
+
+
+state 9
+	vdecls : vdecl . SEMI vdecls  (4)
+
+	SEMI  shift 24
+	.  error
+
+
+state 10
+	prog : block RETURN . exp SEMI  (2)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	exp  goto 31
+	E4  goto 32
+	E5  goto 33
+	E6  goto 34
+	E7  goto 35
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 11
+	vdecl : typ IDENT . EQ exp  (6)
+
+	EQ  shift 41
+	.  error
+
+
+state 12
+	toplevel : prog EOF .  (1)
+
+	.  reduce 1
+
+
+state 13
+	lhs : IDENT .  (12)
+
+	.  reduce 12
+
+
+state 14
+	purestmt : LBRACE . block RBRACE  (57)
+	vdecls : .  (5)
+
+	TINT  shift 3
+	IDENT  reduce 5
+	LBRACE  reduce 5
+	RBRACE  reduce 5
+	IF  reduce 5
+	WHILE  reduce 5
+	FOR  reduce 5
+
+	block  goto 42
+	typ  goto 6
+	vdecls  goto 8
+	vdecl  goto 9
+
+
+state 15
+	unmatchedif : IF . LPAREN exp RPAREN stmt  (50)
+	unmatchedif : IF . LPAREN exp RPAREN matchedif ELSE unmatchedif  (51)
+	matchedif : IF . LPAREN exp RPAREN matchedif ELSE matchedif  (52)
+
+	LPAREN  shift 43
+	.  error
+
+
+state 16
+	purestmt : WHILE . LPAREN exp RPAREN stmt  (55)
+
+	LPAREN  shift 44
+	.  error
+
+
+state 17
+	purestmt : FOR . LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN stmt  (56)
+
+	LPAREN  shift 45
+	.  error
+
+
+state 18
+	stmts : stmt . stmts  (13)
+	stmts : .  (14)
+
+	IDENT  shift 13
+	LBRACE  shift 14
+	IF  shift 15
+	WHILE  shift 16
+	FOR  shift 17
+	RBRACE  reduce 14
+	RETURN  reduce 14
+
+	stmt  goto 18
+	stmts  goto 46
+	lhs  goto 20
+	unmatchedif  goto 21
+	matchedif  goto 22
+	purestmt  goto 23
+
+
+state 19
+	block : vdecls stmts .  (3)
+
+	.  reduce 3
+
+
+state 20
+	purestmt : lhs . EQ exp SEMI  (54)
+
+	EQ  shift 47
+	.  error
+
+
+state 21
+	stmt : unmatchedif .  (48)
+
+	.  reduce 48
+
+
+state 22
+	stmt : matchedif .  (49)
+
+	.  reduce 49
+
+
+state 23
+	matchedif : purestmt .  (53)
+
+	.  reduce 53
+
+
+state 24
+	vdecls : vdecl SEMI . vdecls  (4)
+	vdecls : .  (5)
+
+	TINT  shift 3
+	IDENT  reduce 5
+	LBRACE  reduce 5
+	RBRACE  reduce 5
+	IF  reduce 5
+	WHILE  reduce 5
+	FOR  reduce 5
+	RETURN  reduce 5
+
+	typ  goto 6
+	vdecls  goto 48
+	vdecl  goto 9
+
+
+state 25
+	E12 : INT .  (45)
+
+	.  reduce 45
+
+
+state 26
+	E12 : IDENT .  (47)
+
+	.  reduce 47
+
+
+state 27
+	E11 : DASH . E11  (41)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E11  goto 49
+	E12  goto 40
+
+
+state 28
+	E11 : BANG . E11  (42)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E11  goto 50
+	E12  goto 40
+
+
+state 29
+	E12 : LPAREN . exp RPAREN  (46)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	exp  goto 51
+	E4  goto 32
+	E5  goto 33
+	E6  goto 34
+	E7  goto 35
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 30
+	E11 : TILDE . E11  (43)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E11  goto 52
+	E12  goto 40
+
+
+state 31
+	prog : block RETURN exp . SEMI  (2)
+
+	SEMI  shift 53
+	.  error
+
+
+state 32
+	exp : E4 .  (19)
+	E4 : E4 . BAR E5  (20)
+
+	BAR  shift 54
+	SEMI  reduce 19
+	COMMA  reduce 19
+	RPAREN  reduce 19
+
+
+state 33
+	E4 : E5 .  (21)
+	E5 : E5 . AMPER E6  (22)
+
+	AMPER  shift 55
+	SEMI  reduce 21
+	COMMA  reduce 21
+	BAR  reduce 21
+	RPAREN  reduce 21
+
+
+state 34
+	E5 : E6 .  (23)
+	E6 : E6 . EQEQ E7  (24)
+	E6 : E6 . BANGEQ E7  (25)
+
+	EQEQ  shift 56
+	BANGEQ  shift 57
+	SEMI  reduce 23
+	COMMA  reduce 23
+	BAR  reduce 23
+	AMPER  reduce 23
+	RPAREN  reduce 23
+
+
+state 35
+	E6 : E7 .  (26)
+	E7 : E7 . LT E8  (27)
+	E7 : E7 . LTEQ E8  (28)
+	E7 : E7 . GT E8  (29)
+	E7 : E7 . GTEQ E8  (30)
+
+	GT  shift 58
+	GTEQ  shift 59
+	LT  shift 60
+	LTEQ  shift 61
+	SEMI  reduce 26
+	COMMA  reduce 26
+	EQEQ  reduce 26
+	BANGEQ  reduce 26
+	BAR  reduce 26
+	AMPER  reduce 26
+	RPAREN  reduce 26
+
+
+state 36
+	E7 : E8 .  (31)
+	E8 : E8 . LTLT E9  (32)
+	E8 : E8 . GTGTGT E9  (33)
+	E8 : E8 . GTGT E9  (34)
+
+	LTLT  shift 62
+	GTGT  shift 63
+	GTGTGT  shift 64
+	SEMI  reduce 31
+	COMMA  reduce 31
+	GT  reduce 31
+	GTEQ  reduce 31
+	LT  reduce 31
+	LTEQ  reduce 31
+	EQEQ  reduce 31
+	BANGEQ  reduce 31
+	BAR  reduce 31
+	AMPER  reduce 31
+	RPAREN  reduce 31
+
+
+state 37
+	E8 : E9 .  (35)
+	E9 : E9 . PLUS E10  (36)
+	E9 : E9 . DASH E10  (37)
+
+	PLUS  shift 65
+	DASH  shift 66
+	SEMI  reduce 35
+	COMMA  reduce 35
+	GT  reduce 35
+	GTEQ  reduce 35
+	LT  reduce 35
+	LTEQ  reduce 35
+	EQEQ  reduce 35
+	BANGEQ  reduce 35
+	BAR  reduce 35
+	AMPER  reduce 35
+	RPAREN  reduce 35
+	LTLT  reduce 35
+	GTGT  reduce 35
+	GTGTGT  reduce 35
+
+
+state 38
+	E9 : E10 .  (38)
+	E10 : E10 . STAR E11  (39)
+
+	STAR  shift 67
+	SEMI  reduce 38
+	COMMA  reduce 38
+	PLUS  reduce 38
+	DASH  reduce 38
+	GT  reduce 38
+	GTEQ  reduce 38
+	LT  reduce 38
+	LTEQ  reduce 38
+	EQEQ  reduce 38
+	BANGEQ  reduce 38
+	BAR  reduce 38
+	AMPER  reduce 38
+	RPAREN  reduce 38
+	LTLT  reduce 38
+	GTGT  reduce 38
+	GTGTGT  reduce 38
+
+
+state 39
+	E10 : E11 .  (40)
+
+	.  reduce 40
+
+
+state 40
+	E11 : E12 .  (44)
+
+	.  reduce 44
+
+
+state 41
+	vdecl : typ IDENT EQ . exp  (6)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	exp  goto 68
+	E4  goto 32
+	E5  goto 33
+	E6  goto 34
+	E7  goto 35
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 42
+	purestmt : LBRACE block . RBRACE  (57)
+
+	RBRACE  shift 69
+	.  error
+
+
+state 43
+	unmatchedif : IF LPAREN . exp RPAREN stmt  (50)
+	unmatchedif : IF LPAREN . exp RPAREN matchedif ELSE unmatchedif  (51)
+	matchedif : IF LPAREN . exp RPAREN matchedif ELSE matchedif  (52)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	exp  goto 70
+	E4  goto 32
+	E5  goto 33
+	E6  goto 34
+	E7  goto 35
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 44
+	purestmt : WHILE LPAREN . exp RPAREN stmt  (55)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	exp  goto 71
+	E4  goto 32
+	E5  goto 33
+	E6  goto 34
+	E7  goto 35
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 45
+	purestmt : FOR LPAREN . vdecllist SEMI expOPT SEMI stmtOPT RPAREN stmt  (56)
+	vdecllist : .  (8)
+
+	TINT  shift 3
+	SEMI  reduce 8
+
+	typ  goto 6
+	vdecl  goto 72
+	vdecllist  goto 73
+	vdeclplus  goto 74
+
+
+state 46
+	stmts : stmt stmts .  (13)
+
+	.  reduce 13
+
+
+state 47
+	purestmt : lhs EQ . exp SEMI  (54)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	exp  goto 75
+	E4  goto 32
+	E5  goto 33
+	E6  goto 34
+	E7  goto 35
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 48
+	vdecls : vdecl SEMI vdecls .  (4)
+
+	.  reduce 4
+
+
+state 49
+	E11 : DASH E11 .  (41)
+
+	.  reduce 41
+
+
+state 50
+	E11 : BANG E11 .  (42)
+
+	.  reduce 42
+
+
+state 51
+	E12 : LPAREN exp . RPAREN  (46)
+
+	RPAREN  shift 76
+	.  error
+
+
+state 52
+	E11 : TILDE E11 .  (43)
+
+	.  reduce 43
+
+
+state 53
+	prog : block RETURN exp SEMI .  (2)
+
+	.  reduce 2
+
+
+state 54
+	E4 : E4 BAR . E5  (20)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E5  goto 77
+	E6  goto 34
+	E7  goto 35
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 55
+	E5 : E5 AMPER . E6  (22)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E6  goto 78
+	E7  goto 35
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 56
+	E6 : E6 EQEQ . E7  (24)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E7  goto 79
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 57
+	E6 : E6 BANGEQ . E7  (25)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E7  goto 80
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 58
+	E7 : E7 GT . E8  (29)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E8  goto 81
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 59
+	E7 : E7 GTEQ . E8  (30)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E8  goto 82
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 60
+	E7 : E7 LT . E8  (27)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E8  goto 83
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 61
+	E7 : E7 LTEQ . E8  (28)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E8  goto 84
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 62
+	E8 : E8 LTLT . E9  (32)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E9  goto 85
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 63
+	E8 : E8 GTGT . E9  (34)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E9  goto 86
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 64
+	E8 : E8 GTGTGT . E9  (33)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E9  goto 87
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 65
+	E9 : E9 PLUS . E10  (36)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E10  goto 88
+	E11  goto 39
+	E12  goto 40
+
+
+state 66
+	E9 : E9 DASH . E10  (37)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E10  goto 89
+	E11  goto 39
+	E12  goto 40
+
+
+state 67
+	E10 : E10 STAR . E11  (39)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	E11  goto 90
+	E12  goto 40
+
+
+state 68
+	vdecl : typ IDENT EQ exp .  (6)
+
+	.  reduce 6
+
+
+state 69
+	purestmt : LBRACE block RBRACE .  (57)
+
+	.  reduce 57
+
+
+state 70
+	unmatchedif : IF LPAREN exp . RPAREN stmt  (50)
+	unmatchedif : IF LPAREN exp . RPAREN matchedif ELSE unmatchedif  (51)
+	matchedif : IF LPAREN exp . RPAREN matchedif ELSE matchedif  (52)
+
+	RPAREN  shift 91
+	.  error
+
+
+state 71
+	purestmt : WHILE LPAREN exp . RPAREN stmt  (55)
+
+	RPAREN  shift 92
+	.  error
+
+
+state 72
+	vdeclplus : vdecl .  (10)
+	vdeclplus : vdecl . COMMA vdeclplus  (11)
+
+	COMMA  shift 93
+	SEMI  reduce 10
+
+
+state 73
+	purestmt : FOR LPAREN vdecllist . SEMI expOPT SEMI stmtOPT RPAREN stmt  (56)
+
+	SEMI  shift 94
+	.  error
+
+
+state 74
+	vdecllist : vdeclplus .  (9)
+
+	.  reduce 9
+
+
+state 75
+	purestmt : lhs EQ exp . SEMI  (54)
+
+	SEMI  shift 95
+	.  error
+
+
+state 76
+	E12 : LPAREN exp RPAREN .  (46)
+
+	.  reduce 46
+
+
+state 77
+	E4 : E4 BAR E5 .  (20)
+	E5 : E5 . AMPER E6  (22)
+
+	AMPER  shift 55
+	SEMI  reduce 20
+	COMMA  reduce 20
+	BAR  reduce 20
+	RPAREN  reduce 20
+
+
+state 78
+	E5 : E5 AMPER E6 .  (22)
+	E6 : E6 . EQEQ E7  (24)
+	E6 : E6 . BANGEQ E7  (25)
+
+	EQEQ  shift 56
+	BANGEQ  shift 57
+	SEMI  reduce 22
+	COMMA  reduce 22
+	BAR  reduce 22
+	AMPER  reduce 22
+	RPAREN  reduce 22
+
+
+state 79
+	E6 : E6 EQEQ E7 .  (24)
+	E7 : E7 . LT E8  (27)
+	E7 : E7 . LTEQ E8  (28)
+	E7 : E7 . GT E8  (29)
+	E7 : E7 . GTEQ E8  (30)
+
+	GT  shift 58
+	GTEQ  shift 59
+	LT  shift 60
+	LTEQ  shift 61
+	SEMI  reduce 24
+	COMMA  reduce 24
+	EQEQ  reduce 24
+	BANGEQ  reduce 24
+	BAR  reduce 24
+	AMPER  reduce 24
+	RPAREN  reduce 24
+
+
+state 80
+	E6 : E6 BANGEQ E7 .  (25)
+	E7 : E7 . LT E8  (27)
+	E7 : E7 . LTEQ E8  (28)
+	E7 : E7 . GT E8  (29)
+	E7 : E7 . GTEQ E8  (30)
+
+	GT  shift 58
+	GTEQ  shift 59
+	LT  shift 60
+	LTEQ  shift 61
+	SEMI  reduce 25
+	COMMA  reduce 25
+	EQEQ  reduce 25
+	BANGEQ  reduce 25
+	BAR  reduce 25
+	AMPER  reduce 25
+	RPAREN  reduce 25
+
+
+state 81
+	E7 : E7 GT E8 .  (29)
+	E8 : E8 . LTLT E9  (32)
+	E8 : E8 . GTGTGT E9  (33)
+	E8 : E8 . GTGT E9  (34)
+
+	LTLT  shift 62
+	GTGT  shift 63
+	GTGTGT  shift 64
+	SEMI  reduce 29
+	COMMA  reduce 29
+	GT  reduce 29
+	GTEQ  reduce 29
+	LT  reduce 29
+	LTEQ  reduce 29
+	EQEQ  reduce 29
+	BANGEQ  reduce 29
+	BAR  reduce 29
+	AMPER  reduce 29
+	RPAREN  reduce 29
+
+
+state 82
+	E7 : E7 GTEQ E8 .  (30)
+	E8 : E8 . LTLT E9  (32)
+	E8 : E8 . GTGTGT E9  (33)
+	E8 : E8 . GTGT E9  (34)
+
+	LTLT  shift 62
+	GTGT  shift 63
+	GTGTGT  shift 64
+	SEMI  reduce 30
+	COMMA  reduce 30
+	GT  reduce 30
+	GTEQ  reduce 30
+	LT  reduce 30
+	LTEQ  reduce 30
+	EQEQ  reduce 30
+	BANGEQ  reduce 30
+	BAR  reduce 30
+	AMPER  reduce 30
+	RPAREN  reduce 30
+
+
+state 83
+	E7 : E7 LT E8 .  (27)
+	E8 : E8 . LTLT E9  (32)
+	E8 : E8 . GTGTGT E9  (33)
+	E8 : E8 . GTGT E9  (34)
+
+	LTLT  shift 62
+	GTGT  shift 63
+	GTGTGT  shift 64
+	SEMI  reduce 27
+	COMMA  reduce 27
+	GT  reduce 27
+	GTEQ  reduce 27
+	LT  reduce 27
+	LTEQ  reduce 27
+	EQEQ  reduce 27
+	BANGEQ  reduce 27
+	BAR  reduce 27
+	AMPER  reduce 27
+	RPAREN  reduce 27
+
+
+state 84
+	E7 : E7 LTEQ E8 .  (28)
+	E8 : E8 . LTLT E9  (32)
+	E8 : E8 . GTGTGT E9  (33)
+	E8 : E8 . GTGT E9  (34)
+
+	LTLT  shift 62
+	GTGT  shift 63
+	GTGTGT  shift 64
+	SEMI  reduce 28
+	COMMA  reduce 28
+	GT  reduce 28
+	GTEQ  reduce 28
+	LT  reduce 28
+	LTEQ  reduce 28
+	EQEQ  reduce 28
+	BANGEQ  reduce 28
+	BAR  reduce 28
+	AMPER  reduce 28
+	RPAREN  reduce 28
+
+
+state 85
+	E8 : E8 LTLT E9 .  (32)
+	E9 : E9 . PLUS E10  (36)
+	E9 : E9 . DASH E10  (37)
+
+	PLUS  shift 65
+	DASH  shift 66
+	SEMI  reduce 32
+	COMMA  reduce 32
+	GT  reduce 32
+	GTEQ  reduce 32
+	LT  reduce 32
+	LTEQ  reduce 32
+	EQEQ  reduce 32
+	BANGEQ  reduce 32
+	BAR  reduce 32
+	AMPER  reduce 32
+	RPAREN  reduce 32
+	LTLT  reduce 32
+	GTGT  reduce 32
+	GTGTGT  reduce 32
+
+
+state 86
+	E8 : E8 GTGT E9 .  (34)
+	E9 : E9 . PLUS E10  (36)
+	E9 : E9 . DASH E10  (37)
+
+	PLUS  shift 65
+	DASH  shift 66
+	SEMI  reduce 34
+	COMMA  reduce 34
+	GT  reduce 34
+	GTEQ  reduce 34
+	LT  reduce 34
+	LTEQ  reduce 34
+	EQEQ  reduce 34
+	BANGEQ  reduce 34
+	BAR  reduce 34
+	AMPER  reduce 34
+	RPAREN  reduce 34
+	LTLT  reduce 34
+	GTGT  reduce 34
+	GTGTGT  reduce 34
+
+
+state 87
+	E8 : E8 GTGTGT E9 .  (33)
+	E9 : E9 . PLUS E10  (36)
+	E9 : E9 . DASH E10  (37)
+
+	PLUS  shift 65
+	DASH  shift 66
+	SEMI  reduce 33
+	COMMA  reduce 33
+	GT  reduce 33
+	GTEQ  reduce 33
+	LT  reduce 33
+	LTEQ  reduce 33
+	EQEQ  reduce 33
+	BANGEQ  reduce 33
+	BAR  reduce 33
+	AMPER  reduce 33
+	RPAREN  reduce 33
+	LTLT  reduce 33
+	GTGT  reduce 33
+	GTGTGT  reduce 33
+
+
+state 88
+	E9 : E9 PLUS E10 .  (36)
+	E10 : E10 . STAR E11  (39)
+
+	STAR  shift 67
+	SEMI  reduce 36
+	COMMA  reduce 36
+	PLUS  reduce 36
+	DASH  reduce 36
+	GT  reduce 36
+	GTEQ  reduce 36
+	LT  reduce 36
+	LTEQ  reduce 36
+	EQEQ  reduce 36
+	BANGEQ  reduce 36
+	BAR  reduce 36
+	AMPER  reduce 36
+	RPAREN  reduce 36
+	LTLT  reduce 36
+	GTGT  reduce 36
+	GTGTGT  reduce 36
+
+
+state 89
+	E9 : E9 DASH E10 .  (37)
+	E10 : E10 . STAR E11  (39)
+
+	STAR  shift 67
+	SEMI  reduce 37
+	COMMA  reduce 37
+	PLUS  reduce 37
+	DASH  reduce 37
+	GT  reduce 37
+	GTEQ  reduce 37
+	LT  reduce 37
+	LTEQ  reduce 37
+	EQEQ  reduce 37
+	BANGEQ  reduce 37
+	BAR  reduce 37
+	AMPER  reduce 37
+	RPAREN  reduce 37
+	LTLT  reduce 37
+	GTGT  reduce 37
+	GTGTGT  reduce 37
+
+
+state 90
+	E10 : E10 STAR E11 .  (39)
+
+	.  reduce 39
+
+
+state 91
+	unmatchedif : IF LPAREN exp RPAREN . stmt  (50)
+	unmatchedif : IF LPAREN exp RPAREN . matchedif ELSE unmatchedif  (51)
+	matchedif : IF LPAREN exp RPAREN . matchedif ELSE matchedif  (52)
+
+	IDENT  shift 13
+	LBRACE  shift 14
+	IF  shift 15
+	WHILE  shift 16
+	FOR  shift 17
+	.  error
+
+	stmt  goto 96
+	lhs  goto 20
+	unmatchedif  goto 21
+	matchedif  goto 97
+	purestmt  goto 23
+
+
+state 92
+	purestmt : WHILE LPAREN exp RPAREN . stmt  (55)
+
+	IDENT  shift 13
+	LBRACE  shift 14
+	IF  shift 15
+	WHILE  shift 16
+	FOR  shift 17
+	.  error
+
+	stmt  goto 98
+	lhs  goto 20
+	unmatchedif  goto 21
+	matchedif  goto 22
+	purestmt  goto 23
+
+
+state 93
+	vdeclplus : vdecl COMMA . vdeclplus  (11)
+
+	TINT  shift 3
+	.  error
+
+	typ  goto 6
+	vdecl  goto 72
+	vdeclplus  goto 99
+
+
+state 94
+	purestmt : FOR LPAREN vdecllist SEMI . expOPT SEMI stmtOPT RPAREN stmt  (56)
+	expOPT : .  (17)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	SEMI  reduce 17
+
+	exp  goto 100
+	expOPT  goto 101
+	E4  goto 32
+	E5  goto 33
+	E6  goto 34
+	E7  goto 35
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 95
+	purestmt : lhs EQ exp SEMI .  (54)
+
+	.  reduce 54
+
+
+state 96
+	unmatchedif : IF LPAREN exp RPAREN stmt .  (50)
+
+	.  reduce 50
+
+
+97: shift/reduce conflict (shift 102, reduce 49) on ELSE
+state 97
+	stmt : matchedif .  (49)
+	unmatchedif : IF LPAREN exp RPAREN matchedif . ELSE unmatchedif  (51)
+	matchedif : IF LPAREN exp RPAREN matchedif . ELSE matchedif  (52)
+
+	ELSE  shift 102
+	IDENT  reduce 49
+	LBRACE  reduce 49
+	RBRACE  reduce 49
+	IF  reduce 49
+	WHILE  reduce 49
+	FOR  reduce 49
+	RETURN  reduce 49
+	RPAREN  reduce 49
+
+
+state 98
+	purestmt : WHILE LPAREN exp RPAREN stmt .  (55)
+
+	.  reduce 55
+
+
+state 99
+	vdeclplus : vdecl COMMA vdeclplus .  (11)
+
+	.  reduce 11
+
+
+state 100
+	expOPT : exp .  (18)
+
+	.  reduce 18
+
+
+state 101
+	purestmt : FOR LPAREN vdecllist SEMI expOPT . SEMI stmtOPT RPAREN stmt  (56)
+
+	SEMI  shift 103
+	.  error
+
+
+state 102
+	unmatchedif : IF LPAREN exp RPAREN matchedif ELSE . unmatchedif  (51)
+	matchedif : IF LPAREN exp RPAREN matchedif ELSE . matchedif  (52)
+
+	IDENT  shift 13
+	LBRACE  shift 14
+	IF  shift 15
+	WHILE  shift 16
+	FOR  shift 17
+	.  error
+
+	lhs  goto 20
+	unmatchedif  goto 104
+	matchedif  goto 105
+	purestmt  goto 23
+
+
+state 103
+	purestmt : FOR LPAREN vdecllist SEMI expOPT SEMI . stmtOPT RPAREN stmt  (56)
+	stmtOPT : .  (15)
+
+	IDENT  shift 13
+	LBRACE  shift 14
+	IF  shift 15
+	WHILE  shift 16
+	FOR  shift 17
+	RPAREN  reduce 15
+
+	stmt  goto 106
+	lhs  goto 20
+	stmtOPT  goto 107
+	unmatchedif  goto 21
+	matchedif  goto 22
+	purestmt  goto 23
+
+
+state 104
+	unmatchedif : IF LPAREN exp RPAREN matchedif ELSE unmatchedif .  (51)
+
+	.  reduce 51
+
+
+state 105
+	matchedif : IF LPAREN exp RPAREN matchedif ELSE matchedif .  (52)
+
+	.  reduce 52
+
+
+state 106
+	stmtOPT : stmt .  (16)
+
+	.  reduce 16
+
+
+state 107
+	purestmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT . RPAREN stmt  (56)
+
+	RPAREN  shift 108
+	.  error
+
+
+state 108
+	purestmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN . stmt  (56)
+
+	IDENT  shift 13
+	LBRACE  shift 14
+	IF  shift 15
+	WHILE  shift 16
+	FOR  shift 17
+	.  error
+
+	stmt  goto 109
+	lhs  goto 20
+	unmatchedif  goto 21
+	matchedif  goto 22
+	purestmt  goto 23
+
+
+state 109
+	purestmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN stmt .  (56)
+
+	.  reduce 56
+
+
+State 97 contains 1 shift/reduce conflict.
+
+
+37 terminals, 28 nonterminals
+59 grammar rules, 110 states
