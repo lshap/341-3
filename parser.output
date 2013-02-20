@@ -72,18 +72,21 @@
   48  stmt : unmatchedif
   49       | matchedif
 
-  50  unmatchedif : IF LPAREN exp RPAREN stmt
+  50  unmatchedif : IF LPAREN exp RPAREN unmatchedstmt
   51              | IF LPAREN exp RPAREN matchedif ELSE unmatchedif
 
   52  matchedif : IF LPAREN exp RPAREN matchedif ELSE matchedif
-  53            | purestmt
+  53            | matchedstmt
 
-  54  purestmt : lhs EQ exp SEMI
-  55           | WHILE LPAREN exp RPAREN stmt
-  56           | FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN stmt
-  57           | LBRACE block RBRACE
+  54  unmatchedstmt : WHILE LPAREN exp RPAREN unmatchedstmt
+  55                | FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN unmatchedstmt
 
-  58  %entry% : '\001' toplevel
+  56  matchedstmt : lhs EQ exp SEMI
+  57              | WHILE LPAREN exp RPAREN matchedstmt
+  58              | FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN matchedstmt
+  59              | LBRACE block RBRACE
+
+  60  %entry% : '\001' toplevel
 
 state 0
 	$accept : . %entry% $end  (0)
@@ -95,7 +98,7 @@ state 0
 
 
 state 1
-	%entry% : '\001' . toplevel  (58)
+	%entry% : '\001' . toplevel  (60)
 	vdecls : .  (5)
 
 	TINT  shift 3
@@ -127,9 +130,9 @@ state 3
 
 
 state 4
-	%entry% : '\001' toplevel .  (58)
+	%entry% : '\001' toplevel .  (60)
 
-	.  reduce 58
+	.  reduce 60
 
 
 state 5
@@ -170,7 +173,7 @@ state 8
 	lhs  goto 20
 	unmatchedif  goto 21
 	matchedif  goto 22
-	purestmt  goto 23
+	matchedstmt  goto 23
 
 
 state 9
@@ -223,7 +226,7 @@ state 13
 
 
 state 14
-	purestmt : LBRACE . block RBRACE  (57)
+	matchedstmt : LBRACE . block RBRACE  (59)
 	vdecls : .  (5)
 
 	TINT  shift 3
@@ -241,7 +244,7 @@ state 14
 
 
 state 15
-	unmatchedif : IF . LPAREN exp RPAREN stmt  (50)
+	unmatchedif : IF . LPAREN exp RPAREN unmatchedstmt  (50)
 	unmatchedif : IF . LPAREN exp RPAREN matchedif ELSE unmatchedif  (51)
 	matchedif : IF . LPAREN exp RPAREN matchedif ELSE matchedif  (52)
 
@@ -250,14 +253,14 @@ state 15
 
 
 state 16
-	purestmt : WHILE . LPAREN exp RPAREN stmt  (55)
+	matchedstmt : WHILE . LPAREN exp RPAREN matchedstmt  (57)
 
 	LPAREN  shift 44
 	.  error
 
 
 state 17
-	purestmt : FOR . LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN stmt  (56)
+	matchedstmt : FOR . LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN matchedstmt  (58)
 
 	LPAREN  shift 45
 	.  error
@@ -280,7 +283,7 @@ state 18
 	lhs  goto 20
 	unmatchedif  goto 21
 	matchedif  goto 22
-	purestmt  goto 23
+	matchedstmt  goto 23
 
 
 state 19
@@ -290,7 +293,7 @@ state 19
 
 
 state 20
-	purestmt : lhs . EQ exp SEMI  (54)
+	matchedstmt : lhs . EQ exp SEMI  (56)
 
 	EQ  shift 47
 	.  error
@@ -309,7 +312,7 @@ state 22
 
 
 state 23
-	matchedif : purestmt .  (53)
+	matchedif : matchedstmt .  (53)
 
 	.  reduce 53
 
@@ -578,14 +581,14 @@ state 41
 
 
 state 42
-	purestmt : LBRACE block . RBRACE  (57)
+	matchedstmt : LBRACE block . RBRACE  (59)
 
 	RBRACE  shift 69
 	.  error
 
 
 state 43
-	unmatchedif : IF LPAREN . exp RPAREN stmt  (50)
+	unmatchedif : IF LPAREN . exp RPAREN unmatchedstmt  (50)
 	unmatchedif : IF LPAREN . exp RPAREN matchedif ELSE unmatchedif  (51)
 	matchedif : IF LPAREN . exp RPAREN matchedif ELSE matchedif  (52)
 
@@ -610,7 +613,7 @@ state 43
 
 
 state 44
-	purestmt : WHILE LPAREN . exp RPAREN stmt  (55)
+	matchedstmt : WHILE LPAREN . exp RPAREN matchedstmt  (57)
 
 	INT  shift 25
 	IDENT  shift 26
@@ -633,7 +636,7 @@ state 44
 
 
 state 45
-	purestmt : FOR LPAREN . vdecllist SEMI expOPT SEMI stmtOPT RPAREN stmt  (56)
+	matchedstmt : FOR LPAREN . vdecllist SEMI expOPT SEMI stmtOPT RPAREN matchedstmt  (58)
 	vdecllist : .  (8)
 
 	TINT  shift 3
@@ -652,7 +655,7 @@ state 46
 
 
 state 47
-	purestmt : lhs EQ . exp SEMI  (54)
+	matchedstmt : lhs EQ . exp SEMI  (56)
 
 	INT  shift 25
 	IDENT  shift 26
@@ -967,13 +970,13 @@ state 68
 
 
 state 69
-	purestmt : LBRACE block RBRACE .  (57)
+	matchedstmt : LBRACE block RBRACE .  (59)
 
-	.  reduce 57
+	.  reduce 59
 
 
 state 70
-	unmatchedif : IF LPAREN exp . RPAREN stmt  (50)
+	unmatchedif : IF LPAREN exp . RPAREN unmatchedstmt  (50)
 	unmatchedif : IF LPAREN exp . RPAREN matchedif ELSE unmatchedif  (51)
 	matchedif : IF LPAREN exp . RPAREN matchedif ELSE matchedif  (52)
 
@@ -982,7 +985,7 @@ state 70
 
 
 state 71
-	purestmt : WHILE LPAREN exp . RPAREN stmt  (55)
+	matchedstmt : WHILE LPAREN exp . RPAREN matchedstmt  (57)
 
 	RPAREN  shift 92
 	.  error
@@ -997,7 +1000,7 @@ state 72
 
 
 state 73
-	purestmt : FOR LPAREN vdecllist . SEMI expOPT SEMI stmtOPT RPAREN stmt  (56)
+	matchedstmt : FOR LPAREN vdecllist . SEMI expOPT SEMI stmtOPT RPAREN matchedstmt  (58)
 
 	SEMI  shift 94
 	.  error
@@ -1010,7 +1013,7 @@ state 74
 
 
 state 75
-	purestmt : lhs EQ exp . SEMI  (54)
+	matchedstmt : lhs EQ exp . SEMI  (56)
 
 	SEMI  shift 95
 	.  error
@@ -1297,39 +1300,34 @@ state 90
 
 
 state 91
-	unmatchedif : IF LPAREN exp RPAREN . stmt  (50)
+	unmatchedif : IF LPAREN exp RPAREN . unmatchedstmt  (50)
 	unmatchedif : IF LPAREN exp RPAREN . matchedif ELSE unmatchedif  (51)
 	matchedif : IF LPAREN exp RPAREN . matchedif ELSE matchedif  (52)
 
 	IDENT  shift 13
 	LBRACE  shift 14
-	IF  shift 15
-	WHILE  shift 16
-	FOR  shift 17
+	IF  shift 96
+	WHILE  shift 97
+	FOR  shift 98
 	.  error
 
-	stmt  goto 96
 	lhs  goto 20
-	unmatchedif  goto 21
-	matchedif  goto 97
-	purestmt  goto 23
+	matchedif  goto 99
+	unmatchedstmt  goto 100
+	matchedstmt  goto 23
 
 
 state 92
-	purestmt : WHILE LPAREN exp RPAREN . stmt  (55)
+	matchedstmt : WHILE LPAREN exp RPAREN . matchedstmt  (57)
 
 	IDENT  shift 13
 	LBRACE  shift 14
-	IF  shift 15
 	WHILE  shift 16
 	FOR  shift 17
 	.  error
 
-	stmt  goto 98
 	lhs  goto 20
-	unmatchedif  goto 21
-	matchedif  goto 22
-	purestmt  goto 23
+	matchedstmt  goto 101
 
 
 state 93
@@ -1340,11 +1338,11 @@ state 93
 
 	typ  goto 6
 	vdecl  goto 72
-	vdeclplus  goto 99
+	vdeclplus  goto 102
 
 
 state 94
-	purestmt : FOR LPAREN vdecllist SEMI . expOPT SEMI stmtOPT RPAREN stmt  (56)
+	matchedstmt : FOR LPAREN vdecllist SEMI . expOPT SEMI stmtOPT RPAREN matchedstmt  (58)
 	expOPT : .  (17)
 
 	INT  shift 25
@@ -1355,8 +1353,8 @@ state 94
 	TILDE  shift 30
 	SEMI  reduce 17
 
-	exp  goto 100
-	expOPT  goto 101
+	exp  goto 103
+	expOPT  goto 104
 	E4  goto 32
 	E5  goto 33
 	E6  goto 34
@@ -1369,60 +1367,135 @@ state 94
 
 
 state 95
-	purestmt : lhs EQ exp SEMI .  (54)
+	matchedstmt : lhs EQ exp SEMI .  (56)
 
-	.  reduce 54
+	.  reduce 56
 
 
 state 96
-	unmatchedif : IF LPAREN exp RPAREN stmt .  (50)
+	matchedif : IF . LPAREN exp RPAREN matchedif ELSE matchedif  (52)
+
+	LPAREN  shift 105
+	.  error
+
+
+state 97
+	unmatchedstmt : WHILE . LPAREN exp RPAREN unmatchedstmt  (54)
+	matchedstmt : WHILE . LPAREN exp RPAREN matchedstmt  (57)
+
+	LPAREN  shift 106
+	.  error
+
+
+state 98
+	unmatchedstmt : FOR . LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN unmatchedstmt  (55)
+	matchedstmt : FOR . LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN matchedstmt  (58)
+
+	LPAREN  shift 107
+	.  error
+
+
+state 99
+	unmatchedif : IF LPAREN exp RPAREN matchedif . ELSE unmatchedif  (51)
+	matchedif : IF LPAREN exp RPAREN matchedif . ELSE matchedif  (52)
+
+	ELSE  shift 108
+	.  error
+
+
+state 100
+	unmatchedif : IF LPAREN exp RPAREN unmatchedstmt .  (50)
 
 	.  reduce 50
 
 
-97: shift/reduce conflict (shift 102, reduce 49) on ELSE
-state 97
-	stmt : matchedif .  (49)
-	unmatchedif : IF LPAREN exp RPAREN matchedif . ELSE unmatchedif  (51)
-	matchedif : IF LPAREN exp RPAREN matchedif . ELSE matchedif  (52)
+state 101
+	matchedstmt : WHILE LPAREN exp RPAREN matchedstmt .  (57)
 
-	ELSE  shift 102
-	IDENT  reduce 49
-	LBRACE  reduce 49
-	RBRACE  reduce 49
-	IF  reduce 49
-	WHILE  reduce 49
-	FOR  reduce 49
-	RETURN  reduce 49
-	RPAREN  reduce 49
+	.  reduce 57
 
 
-state 98
-	purestmt : WHILE LPAREN exp RPAREN stmt .  (55)
-
-	.  reduce 55
-
-
-state 99
+state 102
 	vdeclplus : vdecl COMMA vdeclplus .  (11)
 
 	.  reduce 11
 
 
-state 100
+state 103
 	expOPT : exp .  (18)
 
 	.  reduce 18
 
 
-state 101
-	purestmt : FOR LPAREN vdecllist SEMI expOPT . SEMI stmtOPT RPAREN stmt  (56)
+state 104
+	matchedstmt : FOR LPAREN vdecllist SEMI expOPT . SEMI stmtOPT RPAREN matchedstmt  (58)
 
-	SEMI  shift 103
+	SEMI  shift 109
 	.  error
 
 
-state 102
+state 105
+	matchedif : IF LPAREN . exp RPAREN matchedif ELSE matchedif  (52)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	exp  goto 110
+	E4  goto 32
+	E5  goto 33
+	E6  goto 34
+	E7  goto 35
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 106
+	unmatchedstmt : WHILE LPAREN . exp RPAREN unmatchedstmt  (54)
+	matchedstmt : WHILE LPAREN . exp RPAREN matchedstmt  (57)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	.  error
+
+	exp  goto 111
+	E4  goto 32
+	E5  goto 33
+	E6  goto 34
+	E7  goto 35
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 107
+	unmatchedstmt : FOR LPAREN . vdecllist SEMI expOPT SEMI stmtOPT RPAREN unmatchedstmt  (55)
+	matchedstmt : FOR LPAREN . vdecllist SEMI expOPT SEMI stmtOPT RPAREN matchedstmt  (58)
+	vdecllist : .  (8)
+
+	TINT  shift 3
+	SEMI  reduce 8
+
+	typ  goto 6
+	vdecl  goto 72
+	vdecllist  goto 112
+	vdeclplus  goto 74
+
+
+state 108
 	unmatchedif : IF LPAREN exp RPAREN matchedif ELSE . unmatchedif  (51)
 	matchedif : IF LPAREN exp RPAREN matchedif ELSE . matchedif  (52)
 
@@ -1434,13 +1507,13 @@ state 102
 	.  error
 
 	lhs  goto 20
-	unmatchedif  goto 104
-	matchedif  goto 105
-	purestmt  goto 23
+	unmatchedif  goto 113
+	matchedif  goto 114
+	matchedstmt  goto 23
 
 
-state 103
-	purestmt : FOR LPAREN vdecllist SEMI expOPT SEMI . stmtOPT RPAREN stmt  (56)
+state 109
+	matchedstmt : FOR LPAREN vdecllist SEMI expOPT SEMI . stmtOPT RPAREN matchedstmt  (58)
 	stmtOPT : .  (15)
 
 	IDENT  shift 13
@@ -1450,64 +1523,221 @@ state 103
 	FOR  shift 17
 	RPAREN  reduce 15
 
-	stmt  goto 106
+	stmt  goto 115
 	lhs  goto 20
-	stmtOPT  goto 107
+	stmtOPT  goto 116
 	unmatchedif  goto 21
 	matchedif  goto 22
-	purestmt  goto 23
+	matchedstmt  goto 23
 
 
-state 104
+state 110
+	matchedif : IF LPAREN exp . RPAREN matchedif ELSE matchedif  (52)
+
+	RPAREN  shift 117
+	.  error
+
+
+state 111
+	unmatchedstmt : WHILE LPAREN exp . RPAREN unmatchedstmt  (54)
+	matchedstmt : WHILE LPAREN exp . RPAREN matchedstmt  (57)
+
+	RPAREN  shift 118
+	.  error
+
+
+state 112
+	unmatchedstmt : FOR LPAREN vdecllist . SEMI expOPT SEMI stmtOPT RPAREN unmatchedstmt  (55)
+	matchedstmt : FOR LPAREN vdecllist . SEMI expOPT SEMI stmtOPT RPAREN matchedstmt  (58)
+
+	SEMI  shift 119
+	.  error
+
+
+state 113
 	unmatchedif : IF LPAREN exp RPAREN matchedif ELSE unmatchedif .  (51)
 
 	.  reduce 51
 
 
-state 105
+state 114
 	matchedif : IF LPAREN exp RPAREN matchedif ELSE matchedif .  (52)
 
 	.  reduce 52
 
 
-state 106
+state 115
 	stmtOPT : stmt .  (16)
 
 	.  reduce 16
 
 
-state 107
-	purestmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT . RPAREN stmt  (56)
+state 116
+	matchedstmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT . RPAREN matchedstmt  (58)
 
-	RPAREN  shift 108
+	RPAREN  shift 120
 	.  error
 
 
-state 108
-	purestmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN . stmt  (56)
+state 117
+	matchedif : IF LPAREN exp RPAREN . matchedif ELSE matchedif  (52)
+
+	IDENT  shift 13
+	LBRACE  shift 14
+	IF  shift 96
+	WHILE  shift 16
+	FOR  shift 17
+	.  error
+
+	lhs  goto 20
+	matchedif  goto 121
+	matchedstmt  goto 23
+
+
+state 118
+	unmatchedstmt : WHILE LPAREN exp RPAREN . unmatchedstmt  (54)
+	matchedstmt : WHILE LPAREN exp RPAREN . matchedstmt  (57)
+
+	IDENT  shift 13
+	LBRACE  shift 14
+	WHILE  shift 97
+	FOR  shift 98
+	.  error
+
+	lhs  goto 20
+	unmatchedstmt  goto 122
+	matchedstmt  goto 101
+
+
+state 119
+	unmatchedstmt : FOR LPAREN vdecllist SEMI . expOPT SEMI stmtOPT RPAREN unmatchedstmt  (55)
+	matchedstmt : FOR LPAREN vdecllist SEMI . expOPT SEMI stmtOPT RPAREN matchedstmt  (58)
+	expOPT : .  (17)
+
+	INT  shift 25
+	IDENT  shift 26
+	DASH  shift 27
+	BANG  shift 28
+	LPAREN  shift 29
+	TILDE  shift 30
+	SEMI  reduce 17
+
+	exp  goto 103
+	expOPT  goto 123
+	E4  goto 32
+	E5  goto 33
+	E6  goto 34
+	E7  goto 35
+	E8  goto 36
+	E9  goto 37
+	E10  goto 38
+	E11  goto 39
+	E12  goto 40
+
+
+state 120
+	matchedstmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN . matchedstmt  (58)
+
+	IDENT  shift 13
+	LBRACE  shift 14
+	WHILE  shift 16
+	FOR  shift 17
+	.  error
+
+	lhs  goto 20
+	matchedstmt  goto 124
+
+
+state 121
+	matchedif : IF LPAREN exp RPAREN matchedif . ELSE matchedif  (52)
+
+	ELSE  shift 125
+	.  error
+
+
+state 122
+	unmatchedstmt : WHILE LPAREN exp RPAREN unmatchedstmt .  (54)
+
+	.  reduce 54
+
+
+state 123
+	unmatchedstmt : FOR LPAREN vdecllist SEMI expOPT . SEMI stmtOPT RPAREN unmatchedstmt  (55)
+	matchedstmt : FOR LPAREN vdecllist SEMI expOPT . SEMI stmtOPT RPAREN matchedstmt  (58)
+
+	SEMI  shift 126
+	.  error
+
+
+state 124
+	matchedstmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN matchedstmt .  (58)
+
+	.  reduce 58
+
+
+state 125
+	matchedif : IF LPAREN exp RPAREN matchedif ELSE . matchedif  (52)
+
+	IDENT  shift 13
+	LBRACE  shift 14
+	IF  shift 96
+	WHILE  shift 16
+	FOR  shift 17
+	.  error
+
+	lhs  goto 20
+	matchedif  goto 114
+	matchedstmt  goto 23
+
+
+state 126
+	unmatchedstmt : FOR LPAREN vdecllist SEMI expOPT SEMI . stmtOPT RPAREN unmatchedstmt  (55)
+	matchedstmt : FOR LPAREN vdecllist SEMI expOPT SEMI . stmtOPT RPAREN matchedstmt  (58)
+	stmtOPT : .  (15)
 
 	IDENT  shift 13
 	LBRACE  shift 14
 	IF  shift 15
 	WHILE  shift 16
 	FOR  shift 17
-	.  error
+	RPAREN  reduce 15
 
-	stmt  goto 109
+	stmt  goto 115
 	lhs  goto 20
+	stmtOPT  goto 127
 	unmatchedif  goto 21
 	matchedif  goto 22
-	purestmt  goto 23
+	matchedstmt  goto 23
 
 
-state 109
-	purestmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN stmt .  (56)
+state 127
+	unmatchedstmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT . RPAREN unmatchedstmt  (55)
+	matchedstmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT . RPAREN matchedstmt  (58)
 
-	.  reduce 56
+	RPAREN  shift 128
+	.  error
 
 
-State 97 contains 1 shift/reduce conflict.
+state 128
+	unmatchedstmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN . unmatchedstmt  (55)
+	matchedstmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN . matchedstmt  (58)
+
+	IDENT  shift 13
+	LBRACE  shift 14
+	WHILE  shift 97
+	FOR  shift 98
+	.  error
+
+	lhs  goto 20
+	unmatchedstmt  goto 129
+	matchedstmt  goto 124
 
 
-37 terminals, 28 nonterminals
-59 grammar rules, 110 states
+state 129
+	unmatchedstmt : FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN unmatchedstmt .  (55)
+
+	.  reduce 55
+
+
+37 terminals, 29 nonterminals
+61 grammar rules, 130 states

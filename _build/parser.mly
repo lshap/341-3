@@ -146,15 +146,19 @@ stmt:
 	| matchedif {$1}
 
 unmatchedif:
-	| IF LPAREN exp RPAREN stmt {If($3,$5,None)}
+	| IF LPAREN exp RPAREN unmatchedstmt {If($3,$5,None)}
 	| IF LPAREN exp RPAREN matchedif ELSE unmatchedif {If($3,$5,Some $7)}
 
 matchedif:
 	| IF LPAREN exp RPAREN matchedif ELSE matchedif {If($3,$5,Some $7)}
-	| purestmt {$1}
+	| matchedstmt {$1}
 
-purestmt:
+unmatchedstmt:
+	| WHILE LPAREN exp RPAREN unmatchedstmt {While($3,$5)}
+	| FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN unmatchedstmt {For($3,$5,$7,$9)}
+	
+matchedstmt:
 	| lhs EQ exp SEMI { Assign(Var(snd($1)), $3) }
-	| WHILE LPAREN exp RPAREN stmt {While($3,$5)}
-	| FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN stmt {For($3,$5,$7,$9)}
 	| LBRACE block RBRACE {Block($2)}
+	| WHILE LPAREN exp RPAREN matchedstmt {While($3,$5)}
+	| FOR LPAREN vdecllist SEMI expOPT SEMI stmtOPT RPAREN matchedstmt {For($3,$5,$7,$9)}

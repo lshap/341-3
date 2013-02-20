@@ -14,8 +14,14 @@ let empty : t = []
 
 (* try to reuse freed, otherwise create new *)
 let alloc (sym : string) (c : t) : (t * Ll.uid) =
-failwith "alloc not implemented"
-
+  let uid = Ll.mk_uid sym in
+   c@[(sym, uid)]; (c, uid)
+  
 
 let lookup (sym : string) (c : t) : Ll.uid =
-failwith "lookup not implemented"
+  let revlist = List.rev c in
+  try
+   List.assoc sym revlist
+  with
+   | Not_found -> raise (Scope_error "variable out of scope")
+
