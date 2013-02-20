@@ -144,12 +144,53 @@ end
     | Block b ->  let evs = emit_vardecl_stream (fst b) c in
 		  let ess = emit_stmt_stream (snd b) (snd evs) in
                              (ess)@(fst evs)
-
  end
 
 let rec emit_stream ((block, ret):Ast.prog) (c: Ctxt.t): (stream) =
-  let vdecls = emit_vardecl_stream (fst block) c in []
-  
+   let vdecls = emit_vardecl_stream (fst block) c in 
+   let ess = emit_stmt_stream (snd block) (snd vdecls) in 
+   let cret = compile_exp ret (snd vdecls) [] in
+   List.rev (snd cret)@ess@(fst vdecls)
+
+  let rec getnextblock (insns: stream): (insn list* stream) = 
+    begin match insns with
+      | h::t -> begin match h with
+	           | J j -> ([],insns)
+                   | I i -> let g = getnextblock t in
+			    (i::(fst g), snd g)
+		   | L l -> failwith "didn't end on a terminator"
+		  end
+      | [] ->  failwith "didn't end on a terminator"
+    end
+
+let rec getblocks (insns: stream): (bblock list) = 
+  begin match insns with
+  | h::t -> begin match h with
+              | L l-> let g = getnextblock t in 
+		   let terminator = 
+		    begin match (snd g) with
+		     | h1:: t1 -> begin match h with
+		                 | J j-> j
+				 | I i-> failwith "saw insn but expected terminator"
+				 | L l->  failwith "saw lbl but expected terminator"
+		                 end 
+		     | [] -> failwith "no terminator"
+		    end in
+		   let newblock = {label = l; insns = (fst g); terminator = terminator} in
+		     begin match (snd g) with
+		     | h1:: t1 -> newblock::(getblocks t1)
+                    end
+              | J j-> failwith "saw terminator but expected lbl"
+	      | I i-> failwith "saw insn but expected lbl"
+	     end
+  | [] -> []
+  end 
+
+
+
 
 let compile_prog ((block, ret):Ast.prog) : Ll.prog =
-failwith "unimplemented"
+  let entrylbl = mk_lbl() in
+  let context = Ctxt.empty in
+  let insnlist = emit_stream (block, ret) context in
+  {ll_cfg=(getblocks insnlist); ll_entry = entrylbl}
