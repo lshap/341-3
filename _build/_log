@@ -120,7 +120,9 @@
 # Target: phase1.cmx, tags: { compile, extension:cmx, extension:ml, file:phase1.cmx, file:phase1.ml, implem, native, ocaml, quiet }
 /usr/local/bin/ocamlopt.opt -c -o phase1.cmx phase1.ml
 + /usr/local/bin/ocamlopt.opt -c -o phase1.cmx phase1.ml
-File "phase1.ml", line 90, characters 6-12:
+File "phase1.ml", line 127, characters 36-46:
+Warning 26: unused variable vdeclinsns.
+File "phase1.ml", line 151, characters 6-12:
 Warning 26: unused variable vdecls.
 # Target: occ.cmx, tags: { compile, extension:cmx, extension:ml, file:occ.cmx, file:occ.ml, implem, native, ocaml, quiet }
 /usr/local/bin/ocamlopt.opt -c -o occ.cmx occ.ml
@@ -133,5 +135,5 @@ Warning 26: unused variable vdecls.
 # Target: main.native, tags: { dont_link_with, extension:native, file:main.native, link, native, ocaml, program, quiet }
 /usr/local/bin/ocamlopt.opt unix.cmxa str.cmxa LibUtil.cmx assert.cmx ast.cmx x86.cmx ll.cmx ctxt.cmx cunit.cmx range.cmx parser.cmx lexer.cmx phase1.cmx platform.cmx phase2.cmx occ.cmx gradedtests.cmx providedtests.cmx main.cmx -o main.native
 + /usr/local/bin/ocamlopt.opt unix.cmxa str.cmxa LibUtil.cmx assert.cmx ast.cmx x86.cmx ll.cmx ctxt.cmx cunit.cmx range.cmx parser.cmx lexer.cmx phase1.cmx platform.cmx phase2.cmx occ.cmx gradedtests.cmx providedtests.cmx main.cmx -o main.native
-ld: warning: PIE disabled. Absolute addressing (perhaps -mdynamic-no-pic) not allowed in code signed PIE, but used in _caml_program from /var/folders/jq/1fp_zj1d2mgddhsvh1ln3ffh0000gn/T/camlstartup9e6291.o. To fix this warning, don't compile with -mdynamic-no-pic or link with -Wl,-no_pie
+ld: warning: PIE disabled. Absolute addressing (perhaps -mdynamic-no-pic) not allowed in code signed PIE, but used in _caml_program from /var/folders/jq/1fp_zj1d2mgddhsvh1ln3ffh0000gn/T/camlstartupd1fcb9.o. To fix this warning, don't compile with -mdynamic-no-pic or link with -Wl,-no_pie
 # Compilation successful.

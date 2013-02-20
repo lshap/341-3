@@ -80,14 +80,76 @@ let rec emit_vardecl_stream (v: var_decl list) (c: Ctxt.t): (stream *Ctxt.t) =
              let id =  snd allocation in
 	     let c2 = fst allocation in
 	     let allocinsn = I (Alloca id) in
-	     let l = snd(compile_exp h.v_init c2 [allocinsn]) in
+	     let ce = compile_exp h.v_init c2 [] in
+	     let l = snd ce in
+	     let value = fst ce in
+	     let storeinsn = I (Store(value, (Local id))) in
 	     let evs = (emit_vardecl_stream t c2) in
-	      (fst(evs)@l, snd evs)
+	      (fst(evs)@[storeinsn; allocinsn]@l, snd evs)
   | [] -> ([], c)
+ end
+
+
+
+let rec emit_stmt_stream (s:stmt list)(c: Ctxt.t): stream = 
+  begin match s with
+  | h::t -> (emit_stmt_stream s c)@(compile_stmt h c )
+  | [] -> []
+end
+
+ and compile_stmt (st: stmt)(c: Ctxt.t): stream =
+   begin match st with
+    | Assign (l, e) -> let id = begin match l with
+                                      | Var v-> Ctxt.lookup v c 
+                                end in
+		       let ce = compile_exp e c [] in
+		       [I(Store(fst (ce), Local id))]@(snd ce)
+    | If (e, s, so) -> let ce = compile_exp e c [] in
+		       let op = fst ce in
+		       let thenlbl = mk_lbl() in
+		       let mergelbl = mk_lbl() in
+		       begin match so with
+		        | Some sopt -> let elselbl= mk_lbl() in
+				       [L(mergelbl)]@[J(Br mergelbl)]@(compile_stmt sopt c)@
+					 [L(elselbl)]@[J(Br mergelbl)]@(compile_stmt s c)@
+					 [(L(thenlbl)); J(Cbr(op,thenlbl,elselbl))]@(snd ce)
+		        | None ->  [L(mergelbl); J(Br mergelbl)]@(compile_stmt s c)@
+			           [(L(thenlbl)); J(Cbr(op, thenlbl, mergelbl))]@(snd ce)
+		       end
+    | While (e, s) -> let ce = compile_exp e c  [] in 
+                      let prelbl = mk_lbl() in
+                      let lbody = mk_lbl() in
+                      let lpost = mk_lbl() in
+		      [L(lpost); J(Br prelbl)]@(compile_stmt s c)@
+		       [L(lbody); J(Cbr ((fst ce), lbody, lpost))]@(snd ce)@[L(prelbl)]
+    | For (vlist, eo, so, s) -> let vcomp = emit_vardecl_stream vlist c in 
+				let c2 = snd vcomp in
+                                let vdeclinsns = fst vcomp in
+				let prelbl = mk_lbl() in
+                                let lbody = mk_lbl() in
+                                let lpost = mk_lbl() in
+				let check = 
+				  begin match eo with
+				    | Some e ->let ce = compile_exp e c2 [] in 
+					       [J (Cbr(fst ce, lbody, lpost))]@(snd ce)@[L(prelbl)]
+				    | None -> []
+				  end in 
+				let postinsns = 
+				 begin match so with
+				 | Some sopt -> (compile_stmt sopt c2) 
+				 | None -> []
+                                 end in 
+			        let bodyinsns = compile_stmt s c2 in
+				[L(lpost); J(Br prelbl)]@postinsns@bodyinsns@[L(lbody)]@check
+    | Block b ->  let evs = emit_vardecl_stream (fst b) c in
+		  let ess = emit_stmt_stream (snd b) (snd evs) in
+                             (ess)@(fst evs)
+
  end
 
 let rec emit_stream ((block, ret):Ast.prog) (c: Ctxt.t): (stream) =
   let vdecls = emit_vardecl_stream (fst block) c in []
+  
 
 let compile_prog ((block, ret):Ast.prog) : Ll.prog =
 failwith "unimplemented"
